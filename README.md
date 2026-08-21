@@ -1,12 +1,31 @@
 # StockFlow
 
+[![Integração contínua](https://github.com/SamuelMonsalvesMoreira/StockFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/SamuelMonsalvesMoreira/StockFlow/actions/workflows/ci.yml)
+
 Sistema full stack de controle de estoque construído com Angular, C# e ASP.NET Core. A aplicação possui login, controle de acesso por perfil, gerenciamento de produtos, categorias, fornecedores, entradas, saídas, reposição, auditoria e relatórios em uma interface responsiva.
+
+## Demonstração visual
+
+### Painel do gestor
+
+![Painel do gestor com indicadores e inventário](docs/screenshots/dashboard.png)
+
+### Relatórios e auditoria
+
+![Central de relatórios com indicadores, reposição e movimentações](docs/screenshots/reports.png)
+
+<details>
+<summary>Ver tela de login</summary>
+
+![Tela de login com acessos demonstrativos](docs/screenshots/login.png)
+
+</details>
 
 ## Objetivo
 
 Demonstrar regras de negócio e arquitetura comuns em sistemas comerciais: autenticação, autorização por perfil, SKU único, movimentações auditáveis, bloqueio de estoque negativo, persistência substituível, tratamento padronizado de erros e testes automatizados.
 
-## O que funciona na versão 4
+## Principais recursos
 
 - Tela única de login com acessos demonstrativos
 - Perfil `Viewer`: consulta dashboard, produtos e históricos
@@ -34,8 +53,10 @@ Demonstrar regras de negócio e arquitetura comuns em sistemas comerciais: auten
 - Respostas de erro no padrão Problem Details
 - Repositório em memória para execução imediata
 - Implementação alternativa com Entity Framework Core e SQL Server
-- Docker Compose preparado para API e SQL Server
+- Docker Compose com front-end, API, SQL Server e volumes persistentes
+- Migrations do Entity Framework Core aplicadas automaticamente no modo SQL Server
 - Quatorze testes automatizados com xUnit
+- Integração contínua no GitHub Actions para compilar e testar back-end e front-end
 
 A reposição sugerida aparece quando o saldo é menor ou igual ao estoque mínimo. A quantidade é calculada por `estoque máximo - saldo atual`, evitando uma decisão de compra baseada apenas em um alerta genérico.
 
@@ -130,7 +151,26 @@ Abra `http://127.0.0.1:4200`. A API ficará em `http://localhost:5081` usando ar
 docker compose up --build
 ```
 
-Nesse modo, a API usa SQL Server e um volume Docker preserva o banco entre reinicializações. O container do front-end será acrescentado em uma etapa futura.
+Abra `http://localhost:4200`. Nesse modo, o front-end acessa a API pela rede interna do Docker, a API aplica as migrations automaticamente e o SQL Server preserva o banco no volume `sqlserver-data` entre reinicializações.
+
+Essa configuração é opcional e executada somente por quem iniciar os containers. Ela não transforma o computador do desenvolvedor em uma hospedagem pública; para uma demonstração online, a aplicação deve ser publicada em um serviço de nuvem.
+
+Para encerrar sem apagar os dados:
+
+```powershell
+docker compose down
+```
+
+O arquivo `.env` contém a senha local do banco e não deve ser enviado ao GitHub. Apenas o modelo seguro `.env.example` faz parte do repositório.
+
+## Migrations do banco de dados
+
+As migrations registram a evolução da estrutura do SQL Server no próprio código. A aplicação as aplica automaticamente ao iniciar no modo `SqlServer`. Para administrar as migrations manualmente durante o desenvolvimento:
+
+```powershell
+dotnet tool restore
+dotnet ef database update --project src/StockFlow.Api
+```
 
 ## Endpoints principais
 
@@ -193,6 +233,10 @@ Os testes verificam login dos dois perfis, rejeição de senha incorreta, hash d
 
 Além dos testes automatizados, a autorização foi verificada pela API: uma requisição sem sessão retorna `401 Unauthorized` e uma tentativa de escrita feita pelo visitante retorna `403 Forbidden`.
 
+## Integração contínua
+
+O workflow de CI executa automaticamente em alterações e pull requests para a branch `main`. Ele restaura, compila e testa a API em .NET e também instala, testa e gera o build de produção da aplicação Angular. Assim, o selo no início deste README mostra se a versão publicada passou pelas verificações automatizadas.
+
 ## Roadmap
 
 - [x] API de produtos e movimentações
@@ -211,9 +255,12 @@ Além dos testes automatizados, a autorização foi verificada pela API: uma req
 - [x] Auditoria do responsável pelas movimentações
 - [x] Central de relatórios
 - [x] Exportação CSV compatível com Excel
-- [ ] Validar os containers em uma máquina com Docker
-- [ ] Adicionar migrations do Entity Framework Core
-- [ ] Adicionar o front-end ao Docker Compose
+- [x] Migrations do Entity Framework Core
+- [x] Front-end, API e SQL Server no Docker Compose
+- [x] GitHub Actions para back-end e front-end
+- [x] Capturas reais da aplicação no README
+- [ ] Validar a execução completa dos containers em um ambiente com virtualização habilitada
+- [ ] Publicar uma demonstração online
 - [ ] Substituir as contas demonstrativas por cadastro de usuários com ASP.NET Core Identity ou provedor externo
 - [ ] Proteger as chaves de sessão com certificado ou cofre de chaves no ambiente de produção
 - [ ] Adicionar filtros, ordenação e paginação
