@@ -1,0 +1,116 @@
+@StockFlow.Api_HostAddress = http://localhost:5081
+
+### Verificar a API
+GET {{StockFlow.Api_HostAddress}}/health
+Accept: application/json
+
+### Entrar como gestor (o cliente HTTP preserva o cookie da sessão)
+POST {{StockFlow.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gestor@stockflow.local",
+  "password": "Gestor123!"
+}
+
+### Consultar usuário autenticado
+GET {{StockFlow.Api_HostAddress}}/api/auth/me
+Accept: application/json
+
+### Criar categoria
+POST {{StockFlow.Api_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "Informática"
+}
+
+### Criar fornecedor
+POST {{StockFlow.Api_HostAddress}}/api/suppliers
+Content-Type: application/json
+
+{
+  "name": "Tech Distribuidora",
+  "contactName": "Equipe comercial",
+  "email": "vendas@exemplo.com",
+  "phone": "(16) 3333-4444"
+}
+
+### Criar produto vinculado aos cadastros acima
+POST {{StockFlow.Api_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "sku": "NOTE-DELL-01",
+  "name": "Notebook Dell",
+  "unitPrice": 4500.00,
+  "minimumStock": 3,
+  "maximumStock": 15,
+  "categoryId": 1,
+  "supplierId": 1
+}
+
+### Editar produto sem alterar o código ou o saldo
+PUT {{StockFlow.Api_HostAddress}}/api/products/1
+Content-Type: application/json
+
+{
+  "name": "Notebook Dell Inspiron",
+  "unitPrice": 4599.90,
+  "minimumStock": 4,
+  "maximumStock": 20,
+  "categoryId": 1,
+  "supplierId": 1
+}
+
+### Registrar entrada
+# O responsável é obtido automaticamente da sessão autenticada.
+POST {{StockFlow.Api_HostAddress}}/api/products/1/movements
+Content-Type: application/json
+
+{
+  "type": "Entry",
+  "quantity": 10,
+  "note": "Compra inicial"
+}
+
+### Registrar saída
+POST {{StockFlow.Api_HostAddress}}/api/products/1/movements
+Content-Type: application/json
+
+{
+  "type": "Exit",
+  "quantity": 2,
+  "note": "Venda"
+}
+
+### Listar produtos
+GET {{StockFlow.Api_HostAddress}}/api/products
+Accept: application/json
+
+### Listar categorias
+GET {{StockFlow.Api_HostAddress}}/api/categories
+Accept: application/json
+
+### Listar fornecedores
+GET {{StockFlow.Api_HostAddress}}/api/suppliers
+Accept: application/json
+
+### Consultar movimentações
+GET {{StockFlow.Api_HostAddress}}/api/products/1/movements
+Accept: application/json
+
+### Dashboard
+GET {{StockFlow.Api_HostAddress}}/api/dashboard/summary
+Accept: application/json
+
+### Visão consolidada dos relatórios
+GET {{StockFlow.Api_HostAddress}}/api/reports/overview
+Accept: application/json
+
+### Exportar inventário em CSV
+GET {{StockFlow.Api_HostAddress}}/api/reports/inventory.csv
+Accept: text/csv
+
+### Encerrar sessão
+POST {{StockFlow.Api_HostAddress}}/api/auth/logout

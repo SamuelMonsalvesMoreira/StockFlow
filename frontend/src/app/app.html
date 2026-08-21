@@ -1,0 +1,1001 @@
+@if (!authChecked()) {
+  <main class="auth-loading" aria-label="Carregando sessão">
+    <div class="auth-brand"><span class="brand-mark">SF</span><strong>StockFlow</strong></div>
+    <span class="spinner"></span>
+    <p>Preparando seu ambiente...</p>
+  </main>
+} @else if (!currentUser()) {
+  <main class="login-page">
+    <section class="login-showcase">
+      <div class="auth-brand light">
+        <span class="brand-mark">SF</span>
+        <div><strong>StockFlow</strong><small>Gestão inteligente de estoque</small></div>
+      </div>
+      <div class="showcase-content">
+        <span class="portfolio-badge">PROJETO FULL STACK</span>
+        <h1>Controle seu estoque com clareza e segurança.</h1>
+        <p>Produtos, movimentações, alertas e reposição reunidos em uma experiência simples.</p>
+        <ul>
+          <li><span>✓</span> Permissões diferentes para cada perfil</li>
+          <li><span>✓</span> Histórico completo de entradas e saídas</li>
+          <li><span>✓</span> Indicadores e sugestão de reposição</li>
+        </ul>
+      </div>
+      <small class="showcase-footer">Angular · ASP.NET Core · Entity Framework Core</small>
+    </section>
+
+    <section class="login-panel">
+      <div class="login-card">
+        <div class="mobile-login-brand auth-brand">
+          <span class="brand-mark">SF</span><strong>StockFlow</strong>
+        </div>
+        <span class="login-eyebrow">BEM-VINDO</span>
+        <h2>Acesse sua conta</h2>
+        <p class="login-subtitle">Entre com suas credenciais ou escolha um perfil demonstrativo.</p>
+
+        <div class="demo-access" aria-label="Acessos de demonstração">
+          <button
+            class="demo-access-card manager"
+            type="button"
+            [disabled]="isLoggingIn()"
+            (click)="loginAs('Manager')"
+          >
+            <span class="demo-avatar">GE</span>
+            <span
+              ><strong>Entrar como gestor</strong><small>Acesso completo ao estoque</small></span
+            >
+            <b>→</b>
+          </button>
+          <button
+            class="demo-access-card"
+            type="button"
+            [disabled]="isLoggingIn()"
+            (click)="loginAs('Viewer')"
+          >
+            <span class="demo-avatar viewer">VI</span>
+            <span><strong>Entrar como visitante</strong><small>Somente consulta</small></span>
+            <b>→</b>
+          </button>
+        </div>
+
+        <div class="login-divider"><span>ou entre manualmente</span></div>
+
+        <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
+          <label class="form-field">
+            <span>E-mail</span>
+            <input type="email" formControlName="email" placeholder="seuemail@exemplo.com" />
+          </label>
+          <label class="form-field">
+            <span>Senha</span>
+            <input type="password" formControlName="password" placeholder="Digite sua senha" />
+          </label>
+
+          @if (authError()) {
+            <div class="login-error" role="alert"><span>!</span>{{ authError() }}</div>
+          }
+
+          <button class="primary-button login-button" type="submit" [disabled]="isLoggingIn()">
+            @if (isLoggingIn()) {
+              <span class="button-spinner"></span>
+            }
+            {{ isLoggingIn() ? 'Entrando...' : 'Entrar' }}
+          </button>
+        </form>
+        <p class="demo-notice">Ambiente demonstrativo. Utilize apenas dados fictícios.</p>
+      </div>
+    </section>
+  </main>
+} @else {
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">SF</span>
+        <div>
+          <strong>StockFlow</strong>
+          <small>Gestão de estoque</small>
+        </div>
+      </div>
+
+      <nav class="navigation" aria-label="Navegação principal">
+        <span class="nav-label">MENU</span>
+        <button class="nav-item active" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z" />
+          </svg>
+          Visão geral
+        </button>
+        @if (canManage()) {
+          <button class="nav-item" type="button" (click)="openCatalog()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m21 8-9-5-9 5 9 5 9-5Zm-16 3v5l7 4 7-4v-5l-7 4-7-4Z" />
+            </svg>
+            Cadastros
+            <span class="nav-count">{{ categories().length + suppliers().length }}</span>
+          </button>
+        }
+        <button class="nav-item" type="button" (click)="openReports()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M7 7h11l-3-3 1.4-1.4L21.8 8l-5.4 5.4L15 12l3-3H7V7Zm10 10H6l3 3-1.4 1.4L2.2 16l5.4-5.4L9 12l-3 3h11v2Z"
+            />
+          </svg>
+          Movimentações
+        </button>
+        <button class="nav-item" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 19h16v2H4v-2Zm1-2V9h3v8H5Zm5 0V3h4v14h-4Zm6 0v-5h3v5h-3Z" />
+          </svg>
+          Relatórios
+        </button>
+      </nav>
+
+      <div class="sidebar-card">
+        <span class="sidebar-card-icon">?</span>
+        <strong>Projeto de portfólio</strong>
+        <p>API .NET integrada a uma interface Angular responsiva.</p>
+      </div>
+
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        <div>
+          <strong>API conectada</strong>
+          <small>Versão 4.0 · auditoria e relatórios</small>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="mobile-brand">
+          <span class="brand-mark">SF</span>
+          <strong>StockFlow</strong>
+        </div>
+        <div>
+          <p class="eyebrow">PAINEL DE CONTROLE</p>
+          <h1>Visão geral</h1>
+          <p class="subtitle">Acompanhe os principais indicadores do seu estoque.</p>
+        </div>
+        <div class="topbar-actions">
+          @if (currentUser(); as user) {
+            <div class="user-chip">
+              <span>{{ productInitials(user.name) }}</span>
+              <div>
+                <strong>{{ user.name }}</strong
+                ><small>{{ roleLabel(user.role) }}</small>
+              </div>
+            </div>
+          }
+          @if (canManage()) {
+            <button class="secondary-button catalog-button" type="button" (click)="openCatalog()">
+              Categorias e fornecedores
+            </button>
+            <button class="primary-button" type="button" (click)="openCreateProduct()">
+              <span>+</span>
+              Novo produto
+            </button>
+          }
+          <button class="secondary-button report-button" type="button" (click)="openReports()">
+            Relatórios
+          </button>
+          <button class="logout-button" type="button" (click)="logout()" title="Sair da conta">
+            Sair
+          </button>
+        </div>
+      </header>
+
+      @if (!canManage()) {
+        <div class="viewer-banner">
+          <span>i</span>
+          <p>
+            <strong>Modo visitante</strong> Você pode consultar indicadores e históricos. Alterações
+            estão protegidas.
+          </p>
+        </div>
+      }
+
+      <section class="summary-grid" aria-label="Resumo do estoque">
+        <article class="summary-card">
+          <div class="summary-icon blue">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m21 8-9-5-9 5 9 5 9-5ZM5 11v5l7 4 7-4v-5l-7 4-7-4Z" />
+            </svg>
+          </div>
+          <div>
+            <span>Total de produtos</span>
+            <strong>{{ summary().totalProducts }}</strong>
+            <small>itens cadastrados</small>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon purple">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5h16v14H4V5Zm2 2v3h12V7H6Zm0 5v5h5v-5H6Zm7 0v5h5v-5h-5Z" />
+            </svg>
+          </div>
+          <div>
+            <span>Unidades em estoque</span>
+            <strong>{{ summary().totalUnits }}</strong>
+            <small>unidades disponíveis</small>
+          </div>
+        </article>
+
+        <article class="summary-card" [class.attention]="summary().lowStockProducts > 0">
+          <div class="summary-icon amber">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2 1 21h22L12 2Zm1 15h-2v-2h2v2Zm0-4h-2V9h2v4Z" />
+            </svg>
+          </div>
+          <div>
+            <span>Estoque baixo</span>
+            <strong>{{ summary().lowStockProducts }}</strong>
+            <small>produtos precisam de atenção</small>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon green">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 15.5V19h-2v-1.4c-1.7-.3-3-1.3-3.1-3h2c.1.8.9 1.3 2.1 1.3 1.3 0 2-.5 2-1.2 0-.6-.4-1-2.3-1.4-2.1-.5-3.5-1.2-3.5-3 0-1.5 1.1-2.6 2.8-3V5h2v1.4c1.6.3 2.7 1.2 2.9 2.8h-2c-.2-.7-.8-1.2-1.9-1.2-1.2 0-1.8.5-1.8 1.2 0 .6.5.9 2.4 1.3 2.2.5 3.4 1.3 3.4 3.1 0 1.5-1.2 2.7-3 3.1Z"
+              />
+            </svg>
+          </div>
+          <div>
+            <span>Valor do estoque</span>
+            <strong class="currency-value">{{ formatCurrency(summary().totalStockValue) }}</strong>
+            <small>capital em produtos</small>
+          </div>
+        </article>
+      </section>
+
+      <section class="inventory-card">
+        <div class="section-heading">
+          <div>
+            <h2>Inventário</h2>
+            <p>Consulte produtos e registre movimentações.</p>
+          </div>
+          <button
+            class="refresh-button"
+            type="button"
+            (click)="refreshAll()"
+            [disabled]="isLoading()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M17.7 6.3A8 8 0 1 0 20 12h-2a6 6 0 1 1-1.8-4.2L13 11h8V3l-3.3 3.3Z" />
+            </svg>
+            Atualizar
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <form class="search-box" (ngSubmit)="applySearch()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="m21 19.6-4.7-4.7a7 7 0 1 0-1.4 1.4l4.7 4.7 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"
+              />
+            </svg>
+            <input
+              type="search"
+              [formControl]="searchControl"
+              placeholder="Buscar por nome ou código do produto..."
+              aria-label="Buscar produtos"
+            />
+            @if (searchControl.value) {
+              <button
+                class="clear-search"
+                type="button"
+                (click)="clearSearch()"
+                aria-label="Limpar busca"
+              >
+                ×
+              </button>
+            }
+          </form>
+          <button
+            class="filter-button"
+            [class.active]="lowStockOnly()"
+            type="button"
+            (click)="toggleLowStock()"
+          >
+            <span class="filter-indicator"></span>
+            Somente estoque baixo
+          </button>
+        </div>
+
+        @if (errorMessage()) {
+          <div class="error-state">
+            <span>!</span>
+            <div>
+              <strong>Não foi possível carregar os dados</strong>
+              <p>{{ errorMessage() }}</p>
+            </div>
+            <button type="button" (click)="refreshAll()">Tentar novamente</button>
+          </div>
+        } @else if (isLoading()) {
+          <div class="loading-state">
+            <span class="spinner"></span>
+            <p>Carregando inventário...</p>
+          </div>
+        } @else if (products().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">□</div>
+            <h3>Nenhum produto encontrado</h3>
+            <p>Cadastre o primeiro produto ou altere os filtros da pesquisa.</p>
+            @if (canManage()) {
+              <button class="primary-button" type="button" (click)="openCreateProduct()">
+                Novo produto
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Código do produto (SKU)</th>
+                  <th>Preço unitário</th>
+                  <th>Estoque</th>
+                  <th>Faixa planejada</th>
+                  <th>Reposição sugerida</th>
+                  <th>Status</th>
+                  <th><span class="sr-only">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (product of products(); track product.id) {
+                  <tr>
+                    <td data-label="Produto">
+                      <div class="product-cell">
+                        <span class="product-avatar">{{ productInitials(product.name) }}</span>
+                        <div>
+                          <strong>{{ product.name }}</strong>
+                          <small>
+                            {{ product.categoryName || 'Sem categoria' }} ·
+                            {{ product.supplierName || 'Sem fornecedor' }}
+                          </small>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-label="Código">
+                      <code>{{ product.sku }}</code>
+                    </td>
+                    <td class="numeric" data-label="Preço">
+                      {{ formatCurrency(product.unitPrice) }}
+                    </td>
+                    <td data-label="Saldo">
+                      <strong class="stock-number" [class.low]="product.isLowStock">
+                        {{ product.quantityInStock }}
+                      </strong>
+                    </td>
+                    <td class="numeric muted" data-label="Estoque planejado">
+                      {{ product.minimumStock }}–{{ product.maximumStock }}
+                    </td>
+                    <td data-label="Reposição sugerida">
+                      @if (product.suggestedReorderQuantity > 0) {
+                        <span class="reorder-badge"
+                          >+{{ product.suggestedReorderQuantity }} un.</span
+                        >
+                      } @else {
+                        <span class="muted">—</span>
+                      }
+                    </td>
+                    <td data-label="Status">
+                      <span class="status-badge" [class.low]="product.isLowStock">
+                        <span></span>
+                        {{ product.isLowStock ? 'Estoque baixo' : 'Disponível' }}
+                      </span>
+                    </td>
+                    <td data-label="Ações">
+                      <div class="row-actions">
+                        @if (canManage()) {
+                          <button
+                            class="icon-button edit"
+                            type="button"
+                            title="Editar produto"
+                            (click)="openEditProduct(product)"
+                          >
+                            ✎
+                          </button>
+                          <button
+                            class="icon-button entry"
+                            type="button"
+                            title="Registrar entrada"
+                            (click)="openMovement(product, 'Entry')"
+                          >
+                            +
+                          </button>
+                          <button
+                            class="icon-button exit"
+                            type="button"
+                            title="Registrar saída"
+                            (click)="openMovement(product, 'Exit')"
+                          >
+                            −
+                          </button>
+                        }
+                        <button
+                          class="icon-button history"
+                          type="button"
+                          title="Ver histórico"
+                          (click)="openHistory(product)"
+                        >
+                          ↗
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            Exibindo <strong>{{ products().length }}</strong> produto(s)
+            @if (lowStockOnly()) {
+              <span>com estoque baixo</span>
+            }
+          </div>
+        }
+      </section>
+    </main>
+  </div>
+}
+
+@if (showReports()) {
+  <div class="overlay" (click)="closeReports()">
+    <section
+      class="modal report-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header report-header">
+        <div>
+          <span class="modal-eyebrow">ANÁLISE DO INVENTÁRIO</span>
+          <h2 id="report-modal-title">Central de relatórios</h2>
+          <p>Indicadores para acompanhar estoque, categorias e movimentações.</p>
+        </div>
+        <div class="report-header-actions">
+          <button
+            class="secondary-button export-button"
+            type="button"
+            [disabled]="isLoadingReport() || isExportingReport()"
+            (click)="exportReport()"
+          >
+            {{ isExportingReport() ? 'Exportando...' : 'Exportar CSV' }}
+          </button>
+          <button class="close-button" type="button" (click)="closeReports()" aria-label="Fechar">
+            ×
+          </button>
+        </div>
+      </header>
+
+      <div class="report-content">
+        @if (isLoadingReport()) {
+          <div class="loading-state report-loading">
+            <span class="spinner"></span>
+            <p>Preparando indicadores...</p>
+          </div>
+        } @else if (report(); as data) {
+          <div class="report-meta">Atualizado em {{ formatDate(data.generatedAtUtc) }}</div>
+
+          <section class="report-summary-grid" aria-label="Resumo do relatório">
+            <article>
+              <span>Produtos</span><strong>{{ data.summary.totalProducts }}</strong>
+            </article>
+            <article>
+              <span>Unidades</span><strong>{{ data.summary.totalUnits }}</strong>
+            </article>
+            <article class="warning">
+              <span>Estoque baixo</span><strong>{{ data.summary.lowStockProducts }}</strong>
+            </article>
+            <article class="value">
+              <span>Valor total</span
+              ><strong>{{ formatCurrency(data.summary.totalStockValue) }}</strong>
+            </article>
+          </section>
+
+          <div class="report-columns">
+            <section class="report-panel">
+              <header>
+                <div>
+                  <h3>Valor por categoria</h3>
+                  <p>Distribuição financeira do estoque</p>
+                </div>
+              </header>
+              <div class="category-report-list">
+                @for (category of data.categories; track category.categoryName) {
+                  <article>
+                    <div>
+                      <strong>{{ category.categoryName }}</strong>
+                      <small
+                        >{{ category.productCount }} produto(s) ·
+                        {{ category.totalUnits }} unidade(s)</small
+                      >
+                    </div>
+                    <b>{{ formatCurrency(category.totalStockValue) }}</b>
+                  </article>
+                } @empty {
+                  <div class="report-empty">Nenhuma categoria com produtos.</div>
+                }
+              </div>
+            </section>
+
+            <section class="report-panel">
+              <header>
+                <div>
+                  <h3>Reposição necessária</h3>
+                  <p>Produtos abaixo do estoque mínimo</p>
+                </div>
+              </header>
+              <div class="low-stock-report-list">
+                @for (product of data.lowStockProducts; track product.productId) {
+                  <article>
+                    <div>
+                      <strong>{{ product.productName }}</strong>
+                      <small
+                        >{{ product.sku }} · Saldo {{ product.quantityInStock }} de
+                        {{ product.minimumStock }} mín.</small
+                      >
+                    </div>
+                    <span
+                      >Repor <b>{{ product.suggestedReorderQuantity }}</b></span
+                    >
+                  </article>
+                } @empty {
+                  <div class="report-empty success">Estoque em níveis adequados.</div>
+                }
+              </div>
+            </section>
+          </div>
+
+          <section class="report-panel movements-report-panel">
+            <header>
+              <div>
+                <h3>Movimentações recentes</h3>
+                <p>Auditoria das últimas entradas e saídas</p>
+              </div>
+            </header>
+            <div class="report-movement-list">
+              @for (movement of data.recentMovements; track movement.id) {
+                <article>
+                  <span
+                    class="movement-symbol"
+                    [class.entry]="movement.type === 'Entry'"
+                    [class.exit]="movement.type === 'Exit'"
+                    >{{ movement.type === 'Entry' ? '+' : '−' }}</span
+                  >
+                  <div>
+                    <strong>{{ movement.productName }}</strong>
+                    <small>{{ movement.sku }} · {{ movement.performedByName }}</small>
+                  </div>
+                  <b>{{ movement.type === 'Entry' ? '+' : '−' }}{{ movement.quantity }}</b>
+                  <time>{{ formatDate(movement.createdAtUtc) }}</time>
+                </article>
+              } @empty {
+                <div class="report-empty">Nenhuma movimentação registrada.</div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    </section>
+  </div>
+}
+
+@if (showProductForm()) {
+  <div class="overlay" (click)="closeProductForm()">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="modal-eyebrow">{{ editingProduct() ? 'EDIÇÃO' : 'NOVO CADASTRO' }}</span>
+          <h2 id="product-modal-title">
+            {{ editingProduct() ? 'Editar produto' : 'Adicionar produto' }}
+          </h2>
+          <p>
+            {{
+              editingProduct()
+                ? 'Atualize os dados sem alterar o saldo.'
+                : 'Preencha os dados básicos do item.'
+            }}
+          </p>
+        </div>
+        <button class="close-button" type="button" (click)="closeProductForm()" aria-label="Fechar">
+          ×
+        </button>
+      </header>
+
+      <form class="modal-form" [formGroup]="productForm" (ngSubmit)="saveProduct()">
+        <div class="form-row">
+          <label class="form-field">
+            <span>Código do produto (SKU) <b>*</b></span>
+            <input
+              type="text"
+              formControlName="sku"
+              [readOnly]="editingProduct() !== null"
+              placeholder="Ex.: NOTE-DELL-01"
+              autocomplete="off"
+            />
+            <em class="form-hint"
+              >Identificador único usado para controlar o produto no estoque.</em
+            >
+            @if (productForm.controls.sku.invalid && productForm.controls.sku.touched) {
+              <small>Informe um código entre 2 e 40 caracteres.</small>
+            }
+          </label>
+          <label class="form-field wide">
+            <span>Nome do produto <b>*</b></span>
+            <input
+              type="text"
+              formControlName="name"
+              placeholder="Ex.: Notebook Dell Inspiron"
+              autocomplete="off"
+            />
+            @if (productForm.controls.name.invalid && productForm.controls.name.touched) {
+              <small>Informe um nome entre 2 e 120 caracteres.</small>
+            }
+          </label>
+        </div>
+
+        <div class="form-row stock-fields">
+          <label class="form-field">
+            <span>Preço unitário <b>*</b></span>
+            <div class="input-prefix">
+              <span>R$</span>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                formControlName="unitPrice"
+                placeholder="0,00"
+              />
+            </div>
+            @if (productForm.controls.unitPrice.invalid && productForm.controls.unitPrice.touched) {
+              <small>O preço deve ser maior que zero.</small>
+            }
+          </label>
+          <label class="form-field">
+            <span>Estoque mínimo <b>*</b></span>
+            <input type="number" min="0" step="1" formControlName="minimumStock" placeholder="0" />
+            @if (
+              productForm.controls.minimumStock.invalid && productForm.controls.minimumStock.touched
+            ) {
+              <small>Informe zero ou uma quantidade positiva.</small>
+            }
+          </label>
+          <label class="form-field">
+            <span>Estoque máximo <b>*</b></span>
+            <input type="number" min="0" step="1" formControlName="maximumStock" placeholder="0" />
+            @if (
+              productForm.controls.maximumStock.invalid && productForm.controls.maximumStock.touched
+            ) {
+              <small>Informe zero ou uma quantidade positiva.</small>
+            }
+          </label>
+        </div>
+
+        <div class="form-row equal catalog-selects">
+          <label class="form-field">
+            <span>Categoria</span>
+            <select formControlName="categoryId">
+              <option [ngValue]="null">Sem categoria</option>
+              @for (category of categories(); track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Fornecedor principal</span>
+            <select formControlName="supplierId">
+              <option [ngValue]="null">Sem fornecedor</option>
+              @for (supplier of suppliers(); track supplier.id) {
+                <option [ngValue]="supplier.id">{{ supplier.name }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <div class="form-note">
+          <span>i</span>
+          @if (editingProduct()) {
+            O código e o saldo são preservados. Entradas e saídas continuam no histórico.
+          } @else {
+            O saldo inicial será zero. Use uma movimentação de entrada para adicionar unidades.
+          }
+        </div>
+
+        <footer class="modal-actions">
+          <button class="secondary-button" type="button" (click)="closeProductForm()">
+            Cancelar
+          </button>
+          <button class="primary-button" type="submit" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="button-spinner"></span>
+            }
+            {{
+              isSubmitting()
+                ? 'Salvando...'
+                : editingProduct()
+                  ? 'Salvar alterações'
+                  : 'Cadastrar produto'
+            }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}
+
+@if (showCatalog()) {
+  <div class="overlay" (click)="closeCatalog()">
+    <section
+      class="modal catalog-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="catalog-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="modal-eyebrow">ORGANIZAÇÃO DO ESTOQUE</span>
+          <h2 id="catalog-modal-title">Categorias e fornecedores</h2>
+          <p>Organize os produtos e mantenha os contatos de compra.</p>
+        </div>
+        <button class="close-button" type="button" (click)="closeCatalog()" aria-label="Fechar">
+          ×
+        </button>
+      </header>
+
+      <div class="catalog-grid">
+        <section class="catalog-section">
+          <div class="catalog-heading">
+            <div>
+              <span class="catalog-icon">C</span>
+              <div>
+                <h3>Categorias</h3>
+                <small>{{ categories().length }} cadastrada(s)</small>
+              </div>
+            </div>
+          </div>
+          <form [formGroup]="categoryForm" (ngSubmit)="createCategory()" class="inline-form">
+            <label class="form-field">
+              <span>Nome da categoria</span>
+              <input formControlName="name" placeholder="Ex.: Informática" autocomplete="off" />
+            </label>
+            <button class="primary-button" type="submit" [disabled]="isSubmitting()">
+              Adicionar
+            </button>
+          </form>
+          <div class="catalog-list">
+            @for (category of categories(); track category.id) {
+              <span>{{ category.name }}</span>
+            } @empty {
+              <p>Nenhuma categoria cadastrada.</p>
+            }
+          </div>
+        </section>
+
+        <section class="catalog-section">
+          <div class="catalog-heading">
+            <div>
+              <span class="catalog-icon supplier">F</span>
+              <div>
+                <h3>Fornecedores</h3>
+                <small>{{ suppliers().length }} cadastrado(s)</small>
+              </div>
+            </div>
+          </div>
+          <form [formGroup]="supplierForm" (ngSubmit)="createSupplier()" class="supplier-form">
+            <div class="form-row equal">
+              <label class="form-field">
+                <span>Empresa <b>*</b></span>
+                <input formControlName="name" placeholder="Ex.: Tech Distribuidora" />
+              </label>
+              <label class="form-field">
+                <span>Contato</span>
+                <input formControlName="contactName" placeholder="Nome do contato" />
+              </label>
+            </div>
+            <div class="form-row equal">
+              <label class="form-field">
+                <span>E-mail</span>
+                <input type="email" formControlName="email" placeholder="contato@empresa.com" />
+              </label>
+              <label class="form-field">
+                <span>Telefone</span>
+                <input formControlName="phone" placeholder="(16) 99999-9999" />
+              </label>
+            </div>
+            <button class="primary-button catalog-submit" type="submit" [disabled]="isSubmitting()">
+              Adicionar fornecedor
+            </button>
+          </form>
+          <div class="supplier-list">
+            @for (supplier of suppliers(); track supplier.id) {
+              <article>
+                <strong>{{ supplier.name }}</strong>
+                <small>{{
+                  supplier.contactName ||
+                    supplier.email ||
+                    supplier.phone ||
+                    'Sem contato informado'
+                }}</small>
+              </article>
+            } @empty {
+              <p>Nenhum fornecedor cadastrado.</p>
+            }
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+}
+
+@if (showMovementForm() && selectedProduct(); as product) {
+  <div class="overlay" (click)="closeMovementForm()">
+    <section
+      class="modal movement-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="movement-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="modal-eyebrow">MOVIMENTAÇÃO DE ESTOQUE</span>
+          <h2 id="movement-modal-title">{{ product.name }}</h2>
+          <p>
+            {{ product.sku }} · Saldo atual: <strong>{{ product.quantityInStock }}</strong>
+          </p>
+        </div>
+        <button
+          class="close-button"
+          type="button"
+          (click)="closeMovementForm()"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+      </header>
+
+      <form class="modal-form" [formGroup]="movementForm" (ngSubmit)="registerMovement()">
+        <div class="movement-selector" role="group" aria-label="Tipo da movimentação">
+          <button
+            type="button"
+            [class.active]="movementForm.controls.type.value === 'Entry'"
+            (click)="movementForm.controls.type.setValue('Entry')"
+          >
+            <span class="movement-symbol entry">+</span>
+            <div><strong>Entrada</strong><small>Adicionar unidades</small></div>
+          </button>
+          <button
+            type="button"
+            [class.active]="movementForm.controls.type.value === 'Exit'"
+            (click)="movementForm.controls.type.setValue('Exit')"
+          >
+            <span class="movement-symbol exit">−</span>
+            <div><strong>Saída</strong><small>Retirar unidades</small></div>
+          </button>
+        </div>
+
+        <label class="form-field">
+          <span>Quantidade <b>*</b></span>
+          <input type="number" min="1" step="1" formControlName="quantity" />
+          @if (movementForm.controls.quantity.invalid && movementForm.controls.quantity.touched) {
+            <small>Informe uma quantidade maior que zero.</small>
+          }
+        </label>
+
+        <label class="form-field">
+          <span>Observação</span>
+          <textarea
+            formControlName="note"
+            rows="3"
+            placeholder="Ex.: Compra do fornecedor ou venda #1024"
+          ></textarea>
+        </label>
+
+        @if (movementForm.controls.type.value === 'Exit') {
+          <div class="form-note warning">
+            <span>!</span>
+            A saída será bloqueada se a quantidade for maior que o saldo disponível.
+          </div>
+        }
+
+        <footer class="modal-actions">
+          <button class="secondary-button" type="button" (click)="closeMovementForm()">
+            Cancelar
+          </button>
+          <button class="primary-button" type="submit" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="button-spinner"></span>
+            }
+            {{ isSubmitting() ? 'Registrando...' : 'Confirmar movimentação' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+}
+
+@if (showHistory() && selectedProduct(); as product) {
+  <div class="drawer-overlay" (click)="closeHistory()">
+    <aside
+      class="history-drawer"
+      aria-labelledby="history-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="drawer-header">
+        <div>
+          <span class="modal-eyebrow">HISTÓRICO</span>
+          <h2 id="history-title">{{ product.name }}</h2>
+          <p>{{ product.sku }}</p>
+        </div>
+        <button class="close-button" type="button" (click)="closeHistory()" aria-label="Fechar">
+          ×
+        </button>
+      </header>
+
+      <div class="current-balance">
+        <span>Saldo atual</span>
+        <strong>{{ product.quantityInStock }} <small>unidades</small></strong>
+      </div>
+
+      <div class="movement-list">
+        @if (isLoadingMovements()) {
+          <div class="loading-state compact">
+            <span class="spinner"></span>
+            <p>Carregando histórico...</p>
+          </div>
+        } @else if (movements().length === 0) {
+          <div class="empty-state compact">
+            <div class="empty-icon">↕</div>
+            <h3>Nenhuma movimentação</h3>
+            <p>As entradas e saídas aparecerão aqui.</p>
+          </div>
+        } @else {
+          @for (movement of movements(); track movement.id) {
+            <article class="movement-item">
+              <span
+                class="movement-symbol"
+                [class.entry]="movement.type === 'Entry'"
+                [class.exit]="movement.type === 'Exit'"
+              >
+                {{ movement.type === 'Entry' ? '+' : '−' }}
+              </span>
+              <div class="movement-details">
+                <div>
+                  <strong
+                    >{{ movement.type === 'Entry' ? 'Entrada' : 'Saída' }} de
+                    {{ movement.quantity }}</strong
+                  >
+                  <time>{{ formatDate(movement.createdAtUtc) }}</time>
+                </div>
+                <p>{{ movement.note || 'Sem observação' }}</p>
+                <span class="movement-audit">Realizada por {{ movement.performedByName }}</span>
+                <small
+                  >Saldo após movimentação: <b>{{ movement.resultingBalance }}</b></small
+                >
+              </div>
+            </article>
+          }
+        }
+      </div>
+    </aside>
+  </div>
+}
+
+@if (toast(); as message) {
+  <div class="toast" [class.error]="message.type === 'error'" role="status">
+    <span>{{ message.type === 'success' ? '✓' : '!' }}</span>
+    <p>{{ message.message }}</p>
+  </div>
+}

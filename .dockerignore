@@ -1,0 +1,13 @@
+**/bin
+**/obj
+.git
+.github
+.vs
+.vscode
+.env
+.nuget-profile
+.npm-cache
+**/node_modules
+frontend/dist
+tests
+README.md

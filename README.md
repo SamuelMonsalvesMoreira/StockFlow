@@ -218,4 +218,3 @@ Além dos testes automatizados, a autorização foi verificada pela API: uma req
 - [ ] Proteger as chaves de sessão com certificado ou cofre de chaves no ambiente de produção
 - [ ] Adicionar filtros, ordenação e paginação
 - [ ] Permitir inativar produtos sem apagar o histórico
-
