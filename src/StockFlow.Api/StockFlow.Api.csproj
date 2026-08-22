@@ -4,6 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <FrontendRoot>$(MSBuildProjectDirectory)\..\..\frontend</FrontendRoot>
+    <FrontendDist>$(FrontendRoot)\dist\stockflow-web\browser</FrontendDist>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +15,27 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
   </ItemGroup>
+
+  <Target
+    Name="BuildFrontendForDevelopment"
+    BeforeTargets="Build"
+    Condition="'$(Configuration)' == 'Debug' and '$(DesignTimeBuild)' != 'true' and '$(SkipFrontendBuild)' != 'true'">
+    <Message Text="Preparando a interface Angular do StockFlow..." Importance="high" />
+    <Exec
+      WorkingDirectory="$(FrontendRoot)"
+      Command="npm ci"
+      Condition="!Exists('$(FrontendRoot)\node_modules')" />
+    <Exec
+      WorkingDirectory="$(FrontendRoot)"
+      Command="npm run build -- --configuration development" />
+    <RemoveDir Directories="$(MSBuildProjectDirectory)\wwwroot" />
+    <MakeDir Directories="$(MSBuildProjectDirectory)\wwwroot" />
+    <ItemGroup>
+      <FrontendAssets Include="$(FrontendDist)\**\*" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(FrontendAssets)"
+      DestinationFiles="@(FrontendAssets->'$(MSBuildProjectDirectory)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 
 </Project>

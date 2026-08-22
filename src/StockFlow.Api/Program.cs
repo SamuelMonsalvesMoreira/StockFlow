@@ -93,6 +93,7 @@ else
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<DemoInventorySeeder>();
 
 var app = builder.Build();
 
@@ -103,18 +104,56 @@ if (useSqlServer)
     await dbContext.Database.MigrateAsync();
 }
 
+if (builder.Configuration.GetValue("SeedDemoData", false))
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<DemoInventorySeeder>();
+    await seeder.SeedAsync();
+}
+
 app.UseExceptionHandler();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
-app.MapGet("/", () => Results.Ok(new
+app.MapGet("/api/about", () => Results.Ok(new
 {
     application = "StockFlow API",
     version = "4.0",
     storage = storageProvider
 }));
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+
+app.MapFallback(async context =>
+{
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            title = "Recurso não encontrado",
+            status = StatusCodes.Status404NotFound
+        });
+        return;
+    }
+
+    var indexPath = Path.Combine(
+        app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot"),
+        "index.html");
+
+    if (!File.Exists(indexPath))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsync(
+            "A interface ainda não foi compilada. Execute o Angular separadamente durante o desenvolvimento.");
+        return;
+    }
+
+    context.Response.ContentType = "text/html; charset=utf-8";
+    await context.Response.SendFileAsync(indexPath);
+});
 
 app.Run();
 

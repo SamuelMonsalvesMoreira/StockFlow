@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: stockflow-samuel
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+        value: "true"
+      - key: DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE
+        value: "false"
+      - key: StorageProvider
+        value: Memory
+      - key: SeedDemoData
+        value: "true"
+      - key: DataProtectionKeysPath
+        value: /tmp/stockflow/keys

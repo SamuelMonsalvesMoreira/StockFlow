@@ -13,3 +13,4 @@ dist/
 node_modules/
 **/.angular/
 **/.data-protection-keys/
+src/StockFlow.Api/wwwroot/
