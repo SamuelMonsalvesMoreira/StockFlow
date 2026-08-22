@@ -1,8 +1,19 @@
 # StockFlow
 
 [![Integração contínua](https://github.com/SamuelMonsalvesMoreira/StockFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/SamuelMonsalvesMoreira/StockFlow/actions/workflows/ci.yml)
+[![Demonstração online](https://img.shields.io/badge/demonstração-online-16a34a)](https://stockflow-samuel.onrender.com/)
 
 Sistema full stack de controle de estoque construído com Angular, C# e ASP.NET Core. A aplicação possui login, controle de acesso por perfil, gerenciamento de produtos, categorias, fornecedores, entradas, saídas, reposição, auditoria e relatórios em uma interface responsiva.
+
+## Demonstração online — um clique
+
+### [Abrir a demonstração do StockFlow](https://stockflow-samuel.onrender.com/)
+
+Não é necessário instalar ou configurar nada. Na tela de entrada, escolha **Acessar como Gestor** para testar cadastros e movimentações ou **Acessar como Visitante** para avaliar o modo somente leitura.
+
+O Angular e a API ASP.NET Core são publicados no mesmo serviço e no mesmo endereço. Isso mantém a autenticação por cookie no mesmo domínio e simplifica a execução da demonstração.
+
+O serviço gratuito pode levar cerca de um minuto para iniciar após um período sem acessos. O ambiente utiliza dados exclusivamente fictícios e armazenamento em memória: alterações realizadas durante uma visita podem ser reiniciadas quando o serviço for reiniciado.
 
 ## Demonstração visual
 
@@ -55,8 +66,8 @@ Demonstrar regras de negócio e arquitetura comuns em sistemas comerciais: auten
 - Implementação alternativa com Entity Framework Core e SQL Server
 - Docker Compose com front-end, API, SQL Server e volumes persistentes
 - Migrations do Entity Framework Core aplicadas automaticamente no modo SQL Server
-- Quatorze testes automatizados com xUnit
-- Integração contínua no GitHub Actions para compilar e testar back-end e front-end
+- Quinze testes automatizados com xUnit
+- Integração contínua no GitHub Actions para compilar e testar back-end, front-end e a imagem utilizada pelo Render
 
 A reposição sugerida aparece quando o saldo é menor ou igual ao estoque mínimo. A quantidade é calculada por `estoque máximo - saldo atual`, evitando uma decisão de compra baseada apenas em um alerta genérico.
 
@@ -81,6 +92,21 @@ IInventoryRepository    abstração de persistência
 ```
 
 Os controllers não conhecem o banco de dados. A configuração `StorageProvider` escolhe entre `Memory` e `SqlServer` durante a inicialização.
+
+### Publicação no Render
+
+```text
+Navegador
+    |
+    | mesmo domínio: interface + /api
+    v
+Contêiner StockFlow
+    |-- arquivos estáticos do Angular
+    `-- ASP.NET Core Web API
+            `-- MemoryInventoryRepository + dados fictícios iniciais
+```
+
+O `Dockerfile` possui estágios independentes para compilar Angular e .NET. A imagem final contém somente a aplicação ASP.NET Core publicada e os arquivos estáticos gerados pelo front-end. O arquivo `render.yaml` descreve o serviço, a verificação de saúde e as configurações seguras da demonstração.
 
 ## Como a API e o SQL Server trabalham juntos
 
@@ -120,18 +146,37 @@ A central de relatórios reúne valor do estoque por categoria, produtos que pre
 
 Essas credenciais são públicas de propósito e existem somente para a demonstração do portfólio. Elas não possuem informações pessoais e nunca devem ser reutilizadas em outro sistema.
 
-## Executar a aplicação completa
+No ambiente online, cinco produtos, três categorias e dois fornecedores fictícios são carregados automaticamente para que dashboard, alertas, histórico e relatórios possam ser avaliados imediatamente.
+
+## Executar localmente
 
 Requisitos: [.NET 10 SDK](https://dotnet.microsoft.com/download) e [Node.js](https://nodejs.org/).
 
-No primeiro terminal, inicie a API:
+### Windows — iniciar com dois cliques
+
+Depois de baixar ou clonar o repositório, abra a pasta do projeto e execute `start-stockflow.cmd`. O arquivo prepara o Angular, inicia a API e abre `http://localhost:5081` automaticamente.
+
+Mantenha a janela aberta enquanto estiver testando. Para encerrar, pressione `Ctrl+C`.
+
+### Iniciar manualmente com um comando
+
+Na raiz do repositório:
 
 ```powershell
-dotnet restore
 dotnet run --project src/StockFlow.Api
 ```
 
-No segundo terminal, inicie o Angular:
+Esse único comando instala as dependências do Angular na primeira execução, compila a interface, inicia a API e abre `http://localhost:5081`. A interface e a API funcionam no mesmo endereço, como na versão publicada no Render.
+
+### Desenvolvimento com atualização automática
+
+Para trabalhar no front-end com atualização automática, também é possível iniciar os projetos separadamente. No primeiro terminal, execute:
+
+```powershell
+dotnet run --project src/StockFlow.Api -p:SkipFrontendBuild=true
+```
+
+No segundo terminal:
 
 ```powershell
 cd frontend
@@ -139,7 +184,7 @@ npm install
 npm start
 ```
 
-Abra `http://127.0.0.1:4200`. A API ficará em `http://localhost:5081` usando armazenamento em memória. Nesse modo, os dados são reiniciados quando a API é encerrada.
+Nesse modo alternativo, abra `http://127.0.0.1:4200`. A API ficará em `http://localhost:5081`. Com armazenamento em memória, os dados são reiniciados quando a API é encerrada.
 
 ## Executar com SQL Server e Docker
 
@@ -229,13 +274,13 @@ cd frontend
 npm run build
 ```
 
-Os testes verificam login dos dois perfis, rejeição de senha incorreta, hash de senha, validação em ambiente português, normalização e duplicidade de SKU, cálculo de entradas e saídas, bloqueio de saldo negativo, edição com preservação do saldo, sugestão de reposição, categorias, indicadores do dashboard, responsável pela movimentação, resumo dos relatórios e exportação CSV.
+Os testes verificam login dos dois perfis, rejeição de senha incorreta, hash de senha, validação em ambiente português, normalização e duplicidade de SKU, cálculo de entradas e saídas, bloqueio de saldo negativo, edição com preservação do saldo, sugestão de reposição, categorias, indicadores do dashboard, responsável pela movimentação, resumo dos relatórios, exportação CSV e carga idempotente dos dados demonstrativos.
 
 Além dos testes automatizados, a autorização foi verificada pela API: uma requisição sem sessão retorna `401 Unauthorized` e uma tentativa de escrita feita pelo visitante retorna `403 Forbidden`.
 
 ## Integração contínua
 
-O workflow de CI executa automaticamente em alterações e pull requests para a branch `main`. Ele restaura, compila e testa a API em .NET e também instala, testa e gera o build de produção da aplicação Angular. Assim, o selo no início deste README mostra se a versão publicada passou pelas verificações automatizadas.
+O workflow de CI executa automaticamente em alterações e pull requests para a branch `main`. Ele restaura, compila e testa a API em .NET, instala e testa o Angular, gera o build de produção e valida a construção da mesma imagem Docker utilizada pelo Render. Assim, o selo no início deste README mostra se a versão publicada passou pelas verificações automatizadas.
 
 ## Roadmap
 
@@ -259,8 +304,9 @@ O workflow de CI executa automaticamente em alterações e pull requests para a 
 - [x] Front-end, API e SQL Server no Docker Compose
 - [x] GitHub Actions para back-end e front-end
 - [x] Capturas reais da aplicação no README
+- [x] Blueprint e imagem única preparados para demonstração no Render
 - [ ] Validar a execução completa dos containers em um ambiente com virtualização habilitada
-- [ ] Publicar uma demonstração online
+- [ ] Concluir a primeira publicação da demonstração online
 - [ ] Substituir as contas demonstrativas por cadastro de usuários com ASP.NET Core Identity ou provedor externo
 - [ ] Proteger as chaves de sessão com certificado ou cofre de chaves no ambiente de produção
 - [ ] Adicionar filtros, ordenação e paginação
