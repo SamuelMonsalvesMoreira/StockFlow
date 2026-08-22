@@ -1,5 +1,10 @@
 # StockFlow
 
+![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet)
+![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular)
+![SQL Server](https://img.shields.io/badge/SQL_Server-ready-CC2927?logo=microsoftsqlserver)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
+
 [![Integração contínua](https://github.com/SamuelMonsalvesMoreira/StockFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/SamuelMonsalvesMoreira/StockFlow/actions/workflows/ci.yml)
 [![Demonstração online](https://img.shields.io/badge/demonstração-online-16a34a)](https://stockflow-samuel.onrender.com/)
 
@@ -13,7 +18,7 @@ Não é necessário instalar ou configurar nada. Na tela de entrada, escolha **A
 
 O Angular e a API ASP.NET Core são publicados no mesmo serviço e no mesmo endereço. Isso mantém a autenticação por cookie no mesmo domínio e simplifica a execução da demonstração.
 
-O serviço gratuito pode levar cerca de um minuto para iniciar após um período sem acessos. O ambiente utiliza dados exclusivamente fictícios e armazenamento em memória: alterações realizadas durante uma visita podem ser reiniciadas quando o serviço for reiniciado.
+O serviço gratuito pode levar alguns segundos para iniciar após um período sem acessos. As alterações feitas na versão online podem ser reiniciadas junto com o serviço.
 
 ## Demonstração visual
 
@@ -31,6 +36,17 @@ O serviço gratuito pode levar cerca de um minuto para iniciar após um período
 ![Tela de login com acessos demonstrativos](docs/screenshots/login.png)
 
 </details>
+
+## Visão técnica
+
+| Área | Implementação |
+|---|---|
+| Back-end | C#, .NET 10 e ASP.NET Core Web API |
+| Front-end | Angular 22 e TypeScript |
+| Segurança | Cookie HttpOnly e autorização Viewer/Manager |
+| Dados | Memória ou Entity Framework Core com SQL Server |
+| Qualidade | 15 testes com xUnit e GitHub Actions |
+| Publicação | Docker, Docker Compose e Render Blueprint |
 
 ## Objetivo
 
@@ -144,7 +160,7 @@ A central de relatórios reúne valor do estoque por categoria, produtos que pre
 | Gestor | `gestor@stockflow.local` | `Gestor123!` | Consulta e alteração |
 | Visitante | `visitante@stockflow.local` | `Visitante123!` | Somente consulta |
 
-Essas credenciais são públicas de propósito e existem somente para a demonstração do portfólio. Elas não possuem informações pessoais e nunca devem ser reutilizadas em outro sistema.
+As contas acima são usadas somente no ambiente de demonstração.
 
 No ambiente online, cinco produtos, três categorias e dois fornecedores fictícios são carregados automaticamente para que dashboard, alertas, histórico e relatórios possam ser avaliados imediatamente.
 
@@ -306,8 +322,10 @@ O workflow de CI executa automaticamente em alterações e pull requests para a 
 - [x] Capturas reais da aplicação no README
 - [x] Blueprint e imagem única preparados para demonstração no Render
 - [ ] Validar a execução completa dos containers em um ambiente com virtualização habilitada
-- [ ] Concluir a primeira publicação da demonstração online
+- [x] Concluir a primeira publicação da demonstração online
 - [ ] Substituir as contas demonstrativas por cadastro de usuários com ASP.NET Core Identity ou provedor externo
 - [ ] Proteger as chaves de sessão com certificado ou cofre de chaves no ambiente de produção
 - [ ] Adicionar filtros, ordenação e paginação
 - [ ] Permitir inativar produtos sem apagar o histórico
+
+
