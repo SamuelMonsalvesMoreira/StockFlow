@@ -73,8 +73,12 @@ var useSqlServer = storageProvider.Equals("SqlServer", StringComparison.OrdinalI
 
 if (useSqlServer)
 {
-    var connectionString = builder.Configuration.GetConnectionString("SqlServer")
-        ?? throw new InvalidOperationException("A conexão 'SqlServer' não foi configurada.");
+    var connectionString = builder.Configuration.GetConnectionString("SqlServer");
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "A conexão 'SqlServer' não foi configurada. Use a variável de ambiente ConnectionStrings__SqlServer.");
+    }
 
     builder.Services.AddDbContext<StockFlowDbContext>(options =>
         options.UseSqlServer(connectionString));
