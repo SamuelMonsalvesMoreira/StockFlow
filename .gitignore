@@ -5,6 +5,8 @@
 *.user
 *.suo
 .env
+.env.*
+!.env.example
 .nuget-profile/
 .npm-cache/
 TestResults/
